@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="stylesheet" href="css/Perfil.css">
+  <title>Perfil - Lumos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <button class="hamburger" onclick="toggleSidebar()">☰</button>
+
+  <div class="sidebar" id="sidebar">
+    <a href="Homepage.html" class="logo">
+      <img src="images/Logos/logoLumos.png" alt="Logo Lumos">
+    </a>
+    <nav class="navbar">
+      <a href="Homepage.html">Descubra</a>
+      <a href="CienciasNaturais.html">Ciências Naturais, Saúde e Meio Ambiente</a>
+      <a href="CienciasHumanas.html">Ciências Humanas e Letras</a>
+      <a href="CienciasExatas.html">Ciências Exatas</a>
+      <a href="IdiomasComunicacao.html">Idiomas e Comunicação</a>
+      <a href="#Dashboard">Dashboard</a>
+      <a href="#QuemSomos">Quem somos</a>
+    </nav>
+    <div class="icons">
+      <a href="login.html"><div class="fas fa-user"></div></a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="profile-image">
+      <img src="images/Perfil/fotodeusuario1.png" alt="Foto de Perfil" style=""/>
+    </div>
+    <div class="profile-info">
+      <h2 id="profile-name">Nome do Usuário</h2>
+      <p id="profile-username">@usuario</p>
+      <p id="profile-email">email@exemplo.com</p>
+      <div class="profile-buttons">
+        <a href="EditarPerfil.html" class="btn">Editar Perfil</a>
+        <a href="favoritos.html" class="btn">Favoritos</a>
+        <a href="turmas.html" class="btn">Turmas</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function toggleSidebar() {
+      document.getElementById("sidebar").classList.toggle("active");
+    }
+
+    // Carrega os dados salvos no localStorage
+    window.onload = () => {
+      const name = localStorage.getItem("name") || "Nome do Usuário";
+      const username = localStorage.getItem("username") || "@usuario";
+      const email = localStorage.getItem("email") || "email@exemplo.com";
+
+      document.getElementById("profile-name").textContent = name;
+      document.getElementById("profile-username").textContent = username;
+      document.getElementById("profile-email").textContent = email;
+    };
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="stylesheet" href="css/Perfil.css" />
+  <title>Editar Perfil</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <button class="hamburger" onclick="toggleSidebar()">☰</button>
+
+  <div class="sidebar" id="sidebar">
+    <a href="Homepage.html" class="logo">
+      <img src="images/Logos/logoLumos.png" alt="Logo Lumos" />
+    </a>
+    <nav class="navbar">
+      <a href="Homepage.html">Descubra</a>
+      <a href="CienciasNaturais.html">Ciências Naturais, Saúde e Meio Ambiente</a>
+      <a href="CienciasHumanas.html">Ciências Humanas e Letras</a>
+      <a href="CienciasExatas.html">Ciências Exatas</a>
+      <a href="IdiomasComunicacao.html">Idiomas e Comunicação</a>
+      <a href="#Dashboard">Dashboard</a>
+      <a href="#QuemSomos">Quem somos</a>
+    </nav>
+    <div class="icons">
+      <a href="login.html"><div class="fas fa-user"></div></a>
+    </div>
+  </div>
+
+  <div class="card">
+    <form id="edit-profile-form" style="text-align:center;">
+      <div class="profile-image" style="margin-bottom: 20px;">
+        <img id="profile-pic" src="images/Perfil/fotodeusuario1.png" alt="Foto de Perfil"/>
+      </div>
+
+      <input type="file" id="profile-pic-input" accept="image/*" style="display:none" />
+      <button type="button" class="btn" style="margin-bottom: 25px;" onclick="document.getElementById('profile-pic-input').click()">Escolher Foto</button>
+
+      <input type="text" id="name" placeholder="Nome" required style="width: 100%; padding:12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px;" />
+      <input type="text" id="username" placeholder="Nome de usuário" required style="width: 100%; padding:12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px;" />
+      <input type="email" id="email" placeholder="Email" required style="width: 100%; padding:12px; margin-bottom: 25px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px;" />
+
+      <div class="profile-buttons" style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+        <button type="submit" class="btn" style="background-color: #efa019;" onclick="window.location.href= Perfil.html">Salvar</button>
+        <button type="button" class="btn delete-btn" style="background-color: #efa019;" onclick="deleteAccount()">Deletar Conta</button>
+      </div>
+    </form>
+  </div>
+
+  <div id="notification" class="notification" style="display:none;">Conta deletada com sucesso!</div>
+
+  <script>
+    function toggleSidebar() {
+      document.getElementById("sidebar").classList.toggle("active");
+    }
+
+    window.onload = () => {
+      document.getElementById("name").value = localStorage.getItem("name") || "";
+      document.getElementById("username").value = localStorage.getItem("username") || "";
+      document.getElementById("email").value = localStorage.getItem("email") || "";
+
+      const savedImage = localStorage.getItem("profilePic");
+      if (savedImage) {
+        document.getElementById("profile-pic").src = savedImage;
+      }
+    };
+
+    document.getElementById("profile-pic-input").addEventListener("change", function(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const imgData = e.target.result;
+          document.getElementById("profile-pic").src = imgData;
+          localStorage.setItem("profilePic", imgData);
+        }
+        reader.readAsDataURL(file);
+      }
+    });
+
+    document.getElementById("edit-profile-form").addEventListener("submit", function(e) {
+      e.preventDefault();
+      localStorage.setItem("name", document.getElementById("name").value);
+      localStorage.setItem("username", document.getElementById("username").value);
+      localStorage.setItem("email", document.getElementById("email").value);
+      // redireciona para a página de perfil
+      window.location.href = "perfil.html";
+    });
+
+    function deleteAccount() {
+      if (confirm("Tem certeza que deseja excluir sua conta?")) {
+        localStorage.clear();
+        const notification = document.getElementById("notification");
+        notification.style.display = "block";
+        setTimeout(() => {
+          window.location.href = "login.html";
+        }, 2000);
+      }
+    }
+  </script>
+
+</body>
+</html>
