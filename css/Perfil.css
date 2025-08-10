@@ -1,0 +1,190 @@
+/* Importação da fonte */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #fbf6ed; /* Fundo geral */
+  padding-left: 250px;
+  color: #000; /* cor padrão do texto */
+}
+
+/* SIDEBAR */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 250px;
+  height: 100%;
+  background-color: #fbf6ed; /* cor do fundo */
+  padding: 20px;
+  overflow-y: auto;
+  transition: transform 0.3s ease;
+  z-index: 100;
+
+  box-shadow: 3px 0 10px rgba(205, 130, 10, 0.375); /* box-shadow lateral */
+}
+
+.sidebar .logo img {
+  width: 100%;
+  height: auto;
+  margin-bottom: 20px;
+}
+
+.sidebar .navbar a {
+  display: block;
+  color: #efa019; /* fonte amarelo */
+  text-decoration: none;
+  padding: 10px 5px;
+  margin-bottom: 8px;
+  transition: background 0.3s, color 0.3s;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.sidebar .navbar a:hover {
+  background-color: #efa019;
+  color: #fbf6ed; /* texto fica claro no hover */
+}
+
+.sidebar .icons {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.sidebar .icons .fas {
+  font-size: 24px;
+  color: #efa019;
+  cursor: pointer;
+}
+
+/* HAMBURGER PARA MOBILE */
+.hamburger {
+  display: none;
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  z-index: 999;
+  background: #fbf6ed;
+  color: #efa019;
+  font-size: 24px;
+  border: none;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 5px;
+  box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+}
+
+@media (max-width: 768px) {
+  body {
+    padding-left: 0;
+  }
+
+  .sidebar {
+    transform: translateX(-100%);
+  }
+
+  .sidebar.active {
+    transform: translateX(0);
+  }
+
+  .hamburger {
+    display: block;
+  }
+}
+
+/* CARD DE PERFIL */
+.card {
+  background: #fff;
+  max-width: 600px;
+  margin: 80px auto;
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  text-align: center;
+  color: #253237;
+}
+
+.profile-image img {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #efa019;
+  display: block;
+  margin: 0 auto;
+  background-color: #fff;
+}
+
+
+.profile-info h2 {
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+
+.profile-info p {
+  color: #777;
+  margin-bottom: 10px;
+}
+
+.profile-buttons {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.btn {
+  background-color: #efa019; /* botão amarelo */
+  color: #fbf6ed; /* texto claro */
+  border: none;
+  padding: 12px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.3s;
+  text-decoration: none;
+  font-size: 1rem;
+}
+
+.btn:hover {
+  background-color: #c27a10; /* amarelo mais escuro no hover */
+}
+
+.delete-btn {
+  background-color: #efa019;
+}
+
+.delete-btn:hover {
+  background-color: #c27a10;
+}
+
+/* NOTIFICAÇÃO DE CONTA DELETADA */
+.notification {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #253237;
+  color: white;
+  padding: 15px 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  font-weight: bold;
+}
+
+/* INPUTS DE EDIÇÃO */
+form input {
+  width: 100%;
+  padding: 12px 15px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+}
