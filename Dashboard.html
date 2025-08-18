@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="stylesheet" href="Dashboard.css">
+  <title>Perfil - Lumos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <button class="hamburger" onclick="toggleSidebar()">☰</button>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <a href="Homepage.html" class="logo">
+      <img src="imagens/logoLumos.png" alt="Logo Lumos">
+    </a>
+    <nav class="navbar">
+      <a href="Dashboard.html">Início</a>
+      <a href="Calendário.html">Calendário</a>
+      <div class="submenu">
+        <span>📘 Turmas</span>
+        <a href="#">🔴 Turma 1</a>
+        <a href="#">🔵 Turma 2</a>
+      </div>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <header class="header">
+      <button class="btn-criar-turma" id="abrirModal">+ Criar turma</button>
+      <div class="font-buttons">
+        <button id="btn-perfil" title="Perfil">👤</button>
+      </div>
+    </header>
+
+    <!-- DASHBOARD -->
+    <section id="dashboard-view">
+      <div class="turmas" id="lista-turmas">
+        <!-- Cards serão renderizados via JS -->
+      </div>
+    </section>
+
+    <!-- TELA DE UMA TURMA -->
+    <section id="turma-view" style="display:none;">
+      <button id="btn-voltar" class="btn-voltar">← Voltar</button>
+
+      <div class="turma-card preview">
+        <div class="turma-top">
+          <h2 id="titulo-turma">Nome da Turma</h2>
+          <div class="card-icon">🌐</div>
+        </div>
+      </div>
+
+      <section class="sem-atividades">
+        <div class="mensagem">
+          <p><strong id="mensagem-turma">Nenhuma atividade foi programada ainda.</strong></p>
+          <img src="imagens/teste.png" alt="Sem atividades" />
+          <button class="btn-criar">+ Criar</button>
+        </div>
+
+        <div class="convite">
+          <p>Código de convite:</p>
+          <div class="codigo">
+            <span id="codigo-convite">—</span>
+            <button class="copiar" id="btn-copiar">📋</button>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <!-- MODAL CRIAR TURMA -->
+  <div id="modal-nova-turma" class="modal hidden">
+    <div class="modal-content">
+      <h2>Criar turma</h2>
+
+      <label for="nomeTurma">Nome da turma</label>
+      <input type="text" id="nomeTurma" placeholder="Nome da turma" />
+
+      <label for="areaTurma">Área de conhecimento</label>
+      <select id="areaTurma">
+        <option disabled selected>Selecione uma área</option>
+        <option value="Linguagens">Linguagens</option>
+        <option value="Matemática">Matemática</option>
+        <option value="Ciências Humanas">Ciências Humanas</option>
+        <option value="Ciências da Natureza">Ciências da Natureza</option>
+      </select>
+
+      <div class="modal-buttons">
+        <button id="fecharModal" class="btn-cancelar">Cancelar</button>
+        <button id="criarTurma" class="btn-confirmar">Criar</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* ---------- Config / state ---------- */
+const STORAGE_KEY = 'lumos_turmas_v1';
+const COLORS = ['pink','blue','green','purple','orange']; // ciclo de cores
+
+let turmas = []; // array de { nome, cor, area, code }
+
+/* ---------- Helpers ---------- */
+function generateInviteCode() {
+  return Math.random().toString(36).slice(2, 9);
+}
+
+function saveTurmas() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(turmas));
+}
+
+function loadTurmas() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) {
+    // valores iniciais
+    turmas = [
+      { nome: 'Turma 1', cor: 'pink', area: 'Linguagens', code: generateInviteCode() },
+      { nome: 'Turma 2', cor: 'blue', area: 'Matemática', code: generateInviteCode() }
+    ];
+    saveTurmas();
+    return;
+  }
+  try {
+    const parsed = JSON.parse(raw);
+    // migrar / garantir propriedades
+    turmas = parsed.map((t, i) => ({
+      nome: t.nome || `Turma ${i+1}`,
+      cor: t.cor || COLORS[i % COLORS.length] || 'blue',
+      area: t.area || '',
+      code: t.code || generateInviteCode()
+    }));
+  } catch (e) {
+    console.error('Erro ao carregar turmas do localStorage:', e);
+    localStorage.removeItem(STORAGE_KEY);
+    loadTurmas();
+  }
+}
+
+/* ---------- Render ---------- */
+const listaTurmas = document.getElementById('lista-turmas');
+
+function renderTurmas() {
+  listaTurmas.innerHTML = '';
+  turmas.forEach((t, idx) => {
+    const card = document.createElement('div');
+    card.className = `turma-card ${t.cor}`;
+    card.dataset.index = idx;
+    card.dataset.turma = t.nome;
+
+    card.innerHTML = `
+      <div class="card-header">
+        <h3>${t.nome}</h3>
+        <button class="menu-btn" aria-label="menu">⋮</button>
+        <ul class="menu-options" aria-hidden="true">
+          <li class="opt-editar">Editar</li>
+          <li class="opt-copiar">Copiar</li>
+          <li class="opt-convidar">Convidar</li>
+          <li class="opt-excluir">Excluir</li>
+        </ul>
+      </div>
+      <div class="card-icon">📘</div>
+    `;
+    listaTurmas.appendChild(card);
+    attachCardHandlers(card);
+  });
+  // garante que menus externos sejam fechados
+  document.querySelectorAll('.menu-options').forEach(m => m.classList.remove('show'));
+}
+
+/* ---------- Handlers ---------- */
+function attachCardHandlers(card) {
+  const idx = Number(card.dataset.index);
+
+  // Clique no card abre a turma (se não for clique no menu)
+  card.addEventListener('click', (e) => {
+    if (e.target.closest('.menu-btn') || e.target.closest('.menu-options')) return;
+    openTurma(idx);
+  });
+
+  // Menu button
+  const btn = card.querySelector('.menu-btn');
+  const menu = card.querySelector('.menu-options');
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    menu.classList.toggle('show');
+    // fechar outros
+    document.querySelectorAll('.menu-options').forEach(m => { if (m !== menu) m.classList.remove('show') });
+  });
+
+  // Opções do menu
+  const editar = card.querySelector('.opt-editar');
+  const copiar = card.querySelector('.opt-copiar');
+  const convidar = card.querySelector('.opt-convidar');
+  const excluir = card.querySelector('.opt-excluir');
+
+  editar.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const novo = prompt('Digite o novo nome da turma:', turmas[idx].nome);
+    if (novo && novo.trim()) {
+      turmas[idx].nome = novo.trim();
+      saveTurmas();
+      renderTurmas();
+    } else {
+      // se vazio, não faz nada
+    }
+  });
+
+  copiar.addEventListener('click', async (e) => {
+    e.stopPropagation();
+    const text = turmas[idx].nome;
+    try {
+      await navigator.clipboard.writeText(text);
+      alert(`Nome da turma "${text}" copiado para a área de transferência.`);
+    } catch {
+      // fallback
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+      alert(`Nome da turma "${text}" copiado (fallback).`);
+    }
+    menu.classList.remove('show');
+  });
+
+  convidar.addEventListener('click', (e) => {
+    e.stopPropagation();
+    alert(`Código de convite: ${turmas[idx].code}`);
+    menu.classList.remove('show');
+  });
+
+  excluir.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (confirm(`Tem certeza que deseja excluir "${turmas[idx].nome}"?`)) {
+      turmas.splice(idx, 1);
+      saveTurmas();
+      renderTurmas();
+    }
+    menu.classList.remove('show');
+  });
+}
+
+/* ---------- Views / Turma ---------- */
+const dashboard = document.getElementById('dashboard-view');
+const turmaView = document.getElementById('turma-view');
+const tituloTurma = document.getElementById('titulo-turma');
+const codigoConviteSpan = document.getElementById('codigo-convite');
+const btnVoltar = document.getElementById('btn-voltar');
+
+function showView(hideEl, showEl) {
+  hideEl.style.display = 'none';
+  showEl.style.display = 'block';
+}
+
+function openTurma(idx) {
+  const t = turmas[idx];
+  tituloTurma.innerText = t.nome;
+  codigoConviteSpan.innerText = t.code || '—';
+  showView(dashboard, turmaView);
+}
+
+btnVoltar.addEventListener('click', () => {
+  showView(turmaView, dashboard);
+});
+
+/* botão copiar do view da turma */
+const btnCopiarView = document.getElementById('btn-copiar');
+if (btnCopiarView) {
+  btnCopiarView.addEventListener('click', async () => {
+    const text = codigoConviteSpan.innerText;
+    try {
+      await navigator.clipboard.writeText(text);
+      btnCopiarView.innerText = '✅';
+      setTimeout(() => btnCopiarView.innerText = '📋', 1500);
+    } catch {
+      alert('Não foi possível copiar o código.');
+    }
+  });
+}
+
+/* ---------- Modal Criar Turma ---------- */
+const modal = document.getElementById('modal-nova-turma');
+const abrirModalBtn = document.getElementById('abrirModal');
+const fecharModalBtn = document.getElementById('fecharModal');
+const criarTurmaBtn = document.getElementById('criarTurma');
+const nomeTurmaInput = document.getElementById('nomeTurma');
+const areaTurmaSelect = document.getElementById('areaTurma');
+
+abrirModalBtn.addEventListener('click', () => modal.classList.remove('hidden'));
+fecharModalBtn.addEventListener('click', () => modal.classList.add('hidden'));
+
+// criar turma
+criarTurmaBtn.addEventListener('click', () => {
+  const nome = nomeTurmaInput.value.trim();
+  const area = areaTurmaSelect.value;
+  if (!nome || areaTurmaSelect.selectedIndex === 0) {
+    alert('Preencha todos os campos!');
+    return;
+  }
+
+  const cor = COLORS[turmas.length % COLORS.length];
+  const newObj = { nome, cor, area, code: generateInviteCode() };
+  turmas.push(newObj);
+  saveTurmas();
+  renderTurmas();
+
+  // limpa e fecha modal
+  nomeTurmaInput.value = '';
+  areaTurmaSelect.selectedIndex = 0;
+  modal.classList.add('hidden');
+});
+
+/* fecha menus ao clicar fora */
+window.addEventListener('click', () => {
+  document.querySelectorAll('.menu-options').forEach(m => m.classList.remove('show'));
+});
+
+/* ---------- Sidebar toggle ---------- */
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('active');
+}
+
+/* ---------- Inicialização ---------- */
+document.addEventListener('DOMContentLoaded', () => {
+  loadTurmas();
+  renderTurmas();
+});
+</script>
+</body>
+</html>
